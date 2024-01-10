@@ -1,12 +1,5 @@
 #include "modbus.hpp"
 
-#include <stdio.h>
-#include <string.h>
-
-#include <hardware/irq.h>
-#include <hardware/uart.h>
-#include <pico/stdlib.h>
-
 // Modbus errors
 #define MB_NO_ERROR                     0x00
 #define MB_ERROR_ILLEGAL_FUNCTION       0x01

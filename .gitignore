@@ -33,6 +33,7 @@
 
 # Build folder
 /build
+/example/build
 
 # git mess
 .gitatribute

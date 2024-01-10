@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "pico/multicore.h"
 
-#include "modbus.hpp"
+#include <modbus.hpp>
 
 //////////////////////////////////////////////////////////////////
 // Modbus parameters
