@@ -38,12 +38,12 @@
 #define MB_SENSOR_1_REGISTER            1001
 #define MB_SENSOR_2_REGISTER            1002
 
-__attribute__((weak)) 
+__attribute__((weak))
 uint8_t ModbusManager::mb_read_coil_status(uint16_t start, uint16_t count) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-__attribute__((weak)) 
+__attribute__((weak))
 uint8_t ModbusManager::mb_read_input_status(uint16_t start, uint16_t count) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
@@ -68,18 +68,18 @@ uint8_t ModbusManager::mb_write_single_coil(uint16_t start, uint16_t value) {
 //   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 // }
 
-__attribute__((weak)) 
+__attribute__((weak))
 uint8_t ModbusManager::mb_write_multiple_coils(uint16_t start, uint8_t* values, uint16_t len) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-__attribute__((weak)) 
+__attribute__((weak))
 uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t* values, uint16_t len) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
 
-uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len) 
+uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len)
 {
   uint16_t crc = 0xFFFF;
   uint8_t i, j = 0;
@@ -98,7 +98,7 @@ uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len)
 }
 
 
-mb_state_t ModbusManager::mb_check_buf() 
+mb_state_t ModbusManager::mb_check_buf()
 {
   if (mb_request_buf_pos > 4) {
     if (mb_request_buf[0] != mb_slave_address || mb_slave_address == 0) {
@@ -122,14 +122,14 @@ mb_state_t ModbusManager::mb_check_buf()
 }
 
 
- void ModbusManager::mb_reset_buf() 
+ void ModbusManager::mb_reset_buf()
 {
   mb_request_buf_pos = 0;
   memset(mb_request_buf, 0, sizeof(mb_request_buf));
 }
 
 
-void ModbusManager::mb_response_tx() 
+void ModbusManager::mb_response_tx()
 {
   // Calculate CRC
   uint16_t crc = mb_calc_crc16(mb_response_buf, mb_response_buf_pos);
@@ -141,7 +141,7 @@ void ModbusManager::mb_response_tx()
 }
 
 
-void ModbusManager::mb_error(uint8_t err) 
+void ModbusManager::mb_error(uint8_t err)
 {
   mb_response_buf_pos = 0;
   mb_response_buf[mb_response_buf_pos++] = mb_slave_address;
@@ -152,7 +152,7 @@ void ModbusManager::mb_error(uint8_t err)
 
 
 //тут поменял местами запись в регистры
-void ModbusManager::mb_response_add(uint16_t value) 
+void ModbusManager::mb_response_add(uint16_t value)
 {
   mb_response_buf[2] += 2;
   mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
@@ -162,7 +162,7 @@ void ModbusManager::mb_response_add(uint16_t value)
 
 
 // для write single register
-void ModbusManager::mb_response_add_single_register(uint16_t value) 
+void ModbusManager::mb_response_add_single_register(uint16_t value)
 {
   mb_response_buf_pos--; // не надо передавать длинну сбщ
   mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
@@ -171,7 +171,7 @@ void ModbusManager::mb_response_add_single_register(uint16_t value)
 }
 
 
-void ModbusManager::mb_response_reset(uint8_t fn) 
+void ModbusManager::mb_response_reset(uint8_t fn)
 {
   mb_response_buf_pos = 0;
   mb_response_buf[mb_response_buf_pos++] = mb_slave_address;
@@ -180,7 +180,7 @@ void ModbusManager::mb_response_reset(uint8_t fn)
 }
 
 
-void ModbusManager::mb_rx_rtu() 
+void ModbusManager::mb_rx_rtu()
 {
   uint8_t res;
 
@@ -230,11 +230,11 @@ void ModbusManager::mb_rx_rtu()
       break;
   }
 
-  if (res == MB_NO_ERROR) 
+  if (res == MB_NO_ERROR)
   {
     mb_response_tx();
-  } 
-  else 
+  }
+  else
   {
     mb_error(res);
   }
@@ -242,8 +242,8 @@ void ModbusManager::mb_rx_rtu()
   mb_reset_buf();
 }
 
-void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num, 
-                                uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity, 
+void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num,
+                                uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity,
                                 uint8_t rx_pin, uint8_t tx_pin, uint8_t de_pin)
 {
   mb_slave_address = slave_address;
@@ -261,20 +261,20 @@ void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num,
   if(uart_num == 0)
   {
     uart_number = 0;
-    uart_init(uart0, baudrate);      
+    uart_init(uart0, baudrate);
     uart_set_format(uart0, data_bits, stop_bits, parity);
 
     uart_set_fifo_enabled(uart0, false);
 
     irq_set_exclusive_handler(UART0_IRQ, on_mb_rx);
- 
+
     irq_set_enabled(UART0_IRQ, true);
     uart_set_irq_enables(uart0, true, false);
   }
   else if(uart_num == 1)
   {
     uart_number = 1;
-    uart_init(uart1, baudrate);      
+    uart_init(uart1, baudrate);
     uart_set_format(uart1, data_bits, stop_bits, parity);
 
     uart_set_fifo_enabled(uart1, false);
@@ -288,25 +288,25 @@ void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num,
   mb_reset_buf();
 }
 
-void ModbusManager::mb_rx(uint8_t data) 
+void ModbusManager::mb_rx(uint8_t data)
 {
-  if (mb_get_tick_ms() - mb_timeout > MB_TIMEOUT) 
+  if (mb_get_tick_ms() - mb_timeout > MB_TIMEOUT)
     mb_reset_buf();
 
   mb_timeout = mb_get_tick_ms();
 
-  if (mb_request_buf_pos < (sizeof(mb_request_buf) - 1)) 
+  if (mb_request_buf_pos < (sizeof(mb_request_buf) - 1))
     mb_request_buf[mb_request_buf_pos++] = data;
 }
 
 
-void ModbusManager::mb_process() 
+void ModbusManager::mb_process()
 {
   mb_state_t mb_state = mb_check_buf();
   switch (mb_state) {
     case MB_INVALID_FUNCTION:
       mb_error(MB_ERROR_ILLEGAL_FUNCTION);
-      
+
     case MB_INVALID_SLAVE_ADDRESS:
       mb_reset_buf();
       break;
@@ -328,7 +328,7 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
     uint16_t val;
     uint16_t addr = start;
 
-    switch (addr) 
+    switch (addr)
     {
     case MB_COMMAND_REGISTER:
         command = value;
@@ -352,16 +352,16 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
 
     mb_response_add_single_register(start);
     mb_response_add_single_register(value);
-    
+
     return MB_NO_ERROR;
 }
 
 
 // readable регистры
 // чтобы добавить новые, сделать по образцу существующих case
-uint8_t ModbusManager::mb_read_holding_register(uint16_t addr, uint16_t* reg) 
+uint8_t ModbusManager::mb_read_holding_register(uint16_t addr, uint16_t* reg)
 {
-    switch (addr) 
+    switch (addr)
     {
     case MB_STATE_REGISTER:
         *reg = state;
@@ -399,26 +399,26 @@ uint8_t ModbusManager::mb_read_holding_register(uint16_t addr, uint16_t* reg)
 }
 
 
-uint8_t ModbusManager::mb_read_holding_registers(uint16_t start, uint16_t count) 
+uint8_t ModbusManager::mb_read_holding_registers(uint16_t start, uint16_t count)
 {
   uint16_t val;
-  for (int i = 0; i < count; i++) 
+  for (int i = 0; i < count; i++)
   {
-    if (mb_read_holding_register(start + i, &val) == MB_NO_ERROR) 
+    if (mb_read_holding_register(start + i, &val) == MB_NO_ERROR)
       mb_response_add(val);
-    else 
+    else
       return MB_ERROR_ILLEGAL_DATA_ADDRESS;
   }
   return MB_NO_ERROR;
 }
 
 
-uint32_t ModbusManager::mb_get_tick_ms(void) 
+uint32_t ModbusManager::mb_get_tick_ms(void)
 {
   return time_us_64() / 1000;
 }
 
-void ModbusManager::mb_tx(uint8_t* data, uint32_t size) 
+void ModbusManager::mb_tx(uint8_t* data, uint32_t size)
 {
   gpio_put(de_pin, 1);
 

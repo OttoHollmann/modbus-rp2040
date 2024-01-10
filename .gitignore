@@ -32,7 +32,7 @@
 *.app
 
 # Build folder
-/build 
+/build
 
 # git mess
 .gitatribute

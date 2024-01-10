@@ -8,7 +8,7 @@ set(CMAKE_C_STANDART 11)
 set(CMAKE_CXX_STANDART 17)
 
 include_directories(./)		# Расположение заголовочных файлов
-set(SOURCES main.cpp 
+set(SOURCES main.cpp
     modbus.cpp modbus.hpp)
 
 pico_sdk_init()

@@ -21,8 +21,8 @@ typedef enum { MB_DATA_READY, MB_DATA_INCOMPLETE, MB_INVALID_SLAVE_ADDRESS, MB_I
 class ModbusManager
 {
 public:
-    void mb_init(uint8_t slave_address, uint8_t uart_num, 
-                uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity, 
+    void mb_init(uint8_t slave_address, uint8_t uart_num,
+                uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity,
                 uint8_t rx_pin, uint8_t tx_pin, uint8_t de_pin);
 
     void mb_rx(uint8_t data);
@@ -36,7 +36,7 @@ public:
     uint16_t busy_code          = 20;
 
     uint16_t command            = 100;
-    uint16_t command_param[3]   = {0}; 
+    uint16_t command_param[3]   = {0};
 
     uint16_t sensor_0           = 1000;
     uint16_t sensor_1           = 1001;
@@ -63,8 +63,8 @@ private:
     uint8_t mb_read_holding_register(uint16_t addr, uint16_t* reg);
     uint16_t mb_calc_crc16(const uint8_t* buf, uint8_t len);
     mb_state_t mb_check_buf();
-    
-    void mb_reset_buf(); 
+
+    void mb_reset_buf();
     void mb_error(uint8_t err);
     void mb_rx_rtu();
     void mb_response_tx();

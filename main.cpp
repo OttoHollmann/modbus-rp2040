@@ -27,7 +27,7 @@ ModbusManager modbus;
 // костыль, тк irq_handler не модет быть функция - метод класса
 // внутри .hpp файла реализовать не получилось, тк надо вызывать функцию - метод класса
 // работает и норм -_-
-void on_mb_rx() 
+void on_mb_rx()
 {
   if (modbus.uart_number == 0)
     modbus.mb_rx(uart_getc(uart0));
@@ -55,14 +55,14 @@ int main(void)
   stdio_init_all();
   printf("Modbus demo firmware start\r\n");
 
-  modbus.mb_init(MB_SLAVE_ADDRESS, 
-                 MB_UART_NUMBER, 
-                 MB_BAUDRATE, 
-                 MB_DATA_BITS, 
-                 MB_STOP_BITS, 
-                 MB_PARITY, 
-                 MB_RX_PIN, 
-                 MB_TX_PIN, 
+  modbus.mb_init(MB_SLAVE_ADDRESS,
+                 MB_UART_NUMBER,
+                 MB_BAUDRATE,
+                 MB_DATA_BITS,
+                 MB_STOP_BITS,
+                 MB_PARITY,
+                 MB_RX_PIN,
+                 MB_TX_PIN,
                  MB_DE_PIN);
 
   multicore_launch_core1(modbus_process_on_core_1);
