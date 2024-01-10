@@ -48,7 +48,7 @@ uint8_t ModbusManager::mb_read_input_status(uint16_t start, uint16_t count) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-// РАЛИЗОВАННО
+// RELEASED
 // __attribute__((weak)) uint8_t mb_read_holding_registers(uint16_t start, uint16_t count) {
 //   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 // }
@@ -63,7 +63,7 @@ uint8_t ModbusManager::mb_write_single_coil(uint16_t start, uint16_t value) {
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-// РАЛИЗОВАННО
+// RELEASED
 // __attribute__((weak)) uint8_t mb_write_single_register(uint16_t start, uint16_t value) {
 //   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 // }
@@ -151,7 +151,7 @@ void ModbusManager::mb_error(uint8_t err)
 }
 
 
-//тут поменял местами запись в регистры
+//here I swapped the entries in the registers
 void ModbusManager::mb_response_add(uint16_t value)
 {
   mb_response_buf[2] += 2;
@@ -161,10 +161,10 @@ void ModbusManager::mb_response_add(uint16_t value)
 }
 
 
-// для write single register
+// for write single register
 void ModbusManager::mb_response_add_single_register(uint16_t value)
 {
-  mb_response_buf_pos--; // не надо передавать длинну сбщ
+  mb_response_buf_pos--; // no need to send message length
   mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
   mb_response_buf[mb_response_buf_pos++] = value & 0xFF;
 
@@ -321,8 +321,8 @@ void ModbusManager::mb_process()
 }
 
 
-// Задаются только writable регистры
-// чтобы добавить новые, сделать по образцу существующих case
+// Only writable registers are set
+// to add new ones, model existing cases
 uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
 {
     uint16_t val;
@@ -357,8 +357,8 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
 }
 
 
-// readable регистры
-// чтобы добавить новые, сделать по образцу существующих case
+// readable registers
+// to add new ones, model existing cases
 uint8_t ModbusManager::mb_read_holding_register(uint16_t addr, uint16_t* reg)
 {
     switch (addr)

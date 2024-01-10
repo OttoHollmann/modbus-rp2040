@@ -24,9 +24,9 @@ ModbusManager modbus;
 //////////////////////////////////////////////////////////////////
 
 
-// костыль, тк irq_handler не модет быть функция - метод класса
-// внутри .hpp файла реализовать не получилось, тк надо вызывать функцию - метод класса
-// работает и норм -_-
+// a crutch, because irq_handler cannot be a function - a class method
+// it was not possible to implement it inside the .hpp file, because it is necessary to call a function - a class method
+// works and is fine -_-
 void on_mb_rx()
 {
   if (modbus.uart_number == 0)
