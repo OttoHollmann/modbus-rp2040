@@ -14,8 +14,8 @@
 #define MB_READ_INPUT_REGISTERS         0x04
 #define MB_WRITE_SINGLE_COIL            0x05
 #define MB_WRITE_SINGLE_REGISTER        0x06
-#define MB_WRITE_MULTIPLE_COILS         0x10
-#define MB_WRITE_MULTIPLE_REGISTERS     0x0F
+#define MB_WRITE_MULTIPLE_COILS         0x0F
+#define MB_WRITE_MULTIPLE_REGISTERS     0x10
 
 // Registers adresses
 #define MB_STATE_REGISTER               0
