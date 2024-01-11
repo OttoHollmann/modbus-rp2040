@@ -18,14 +18,10 @@
 // CRUTCH
 extern void on_mb_rx();
 
-// I don't know why it doesn't work inside the class
-// CRUTCH
-typedef enum { MB_DATA_READY, MB_DATA_INCOMPLETE, MB_INVALID_SLAVE_ADDRESS, MB_INVALID_FUNCTION } mb_state_t;
-
-
 class ModbusManager
 {
 public:
+    typedef enum { MB_DATA_READY, MB_DATA_INCOMPLETE, MB_INVALID_SLAVE_ADDRESS, MB_INVALID_FUNCTION } mb_state_t;
     void mb_init(uint8_t slave_address, uint8_t uart_num,
                 uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity,
                 uint8_t rx_pin, uint8_t tx_pin, uint8_t de_pin);

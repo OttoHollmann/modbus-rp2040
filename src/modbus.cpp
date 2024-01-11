@@ -91,7 +91,7 @@ uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len)
 }
 
 
-mb_state_t ModbusManager::mb_check_buf()
+ModbusManager::mb_state_t ModbusManager::mb_check_buf()
 {
   if (mb_request_buf_pos > 4) {
     if (mb_request_buf[0] != mb_slave_address || mb_slave_address == 0) {
