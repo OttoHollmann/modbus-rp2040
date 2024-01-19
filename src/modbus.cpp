@@ -155,9 +155,10 @@ void ModbusManager::mb_response_add(uint16_t value)
 
 
 // for write single register
-void ModbusManager::mb_response_add_single_register(uint16_t value)
+void ModbusManager::mb_response_add_single_register(uint16_t value, bool remove_length)
 {
-  mb_response_buf_pos--; // no need to send message length
+  if (remove_length)
+    mb_response_buf_pos--; // no need to send message length
   mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
   mb_response_buf[mb_response_buf_pos++] = value & 0xFF;
 
@@ -343,7 +344,7 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
         return MB_ERROR_ILLEGAL_DATA_ADDRESS;
     }
 
-    mb_response_add_single_register(start);
+    mb_response_add_single_register(start, true);
     mb_response_add_single_register(value);
 
     return MB_NO_ERROR;
