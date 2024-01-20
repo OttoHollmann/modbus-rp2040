@@ -66,10 +66,10 @@ uint8_t ModbusManager::mb_write_multiple_coils(uint16_t start, uint8_t* values, 
   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-__attribute__((weak))
-uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t* values, uint16_t len) {
-  return MB_ERROR_ILLEGAL_DATA_ADDRESS;
-}
+// __attribute__((weak))
+// uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t* values, uint16_t len) {
+//   return MB_ERROR_ILLEGAL_DATA_ADDRESS;
+// }
 
 
 uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len)
@@ -155,9 +155,9 @@ void ModbusManager::mb_response_add(uint16_t value)
 
 
 // for write single register
-void ModbusManager::mb_response_add_single_register(uint16_t value, bool remove_length)
+void ModbusManager::mb_response_add_without_length(uint16_t value)
 {
-  if (remove_length)
+  if (mb_response_buf_pos == 3)
     mb_response_buf_pos--; // no need to send message length
   mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
   mb_response_buf[mb_response_buf_pos++] = value & 0xFF;
@@ -344,8 +344,8 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value)
         return MB_ERROR_ILLEGAL_DATA_ADDRESS;
     }
 
-    mb_response_add_single_register(start, true);
-    mb_response_add_single_register(value);
+    mb_response_add_without_length(start);
+    mb_response_add_without_length(value);
 
     return MB_NO_ERROR;
 }
@@ -392,6 +392,13 @@ uint8_t ModbusManager::mb_read_holding_register(uint16_t addr, uint16_t* reg)
     return MB_NO_ERROR;
 }
 
+uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t* values, uint16_t len) {
+  return MB_ERROR_ILLEGAL_DATA_ADDRESS;
+  //TODO
+  mb_response_add_without_length(start);
+  mb_response_add_without_length(len);
+  return MB_NO_ERROR;
+}
 
 uint8_t ModbusManager::mb_read_holding_registers(uint16_t start, uint16_t count)
 {

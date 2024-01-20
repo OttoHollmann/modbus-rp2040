@@ -45,7 +45,7 @@ public:
 
 private:
     void mb_response_add(uint16_t value);
-    void mb_response_add_single_register(uint16_t value, bool remove_length = false);
+    void mb_response_add_without_length(uint16_t value);
     void mb_response_reset(uint8_t fn);
 
     void mb_tx(uint8_t* data, uint32_t size);
