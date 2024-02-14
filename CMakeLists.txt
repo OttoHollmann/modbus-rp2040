@@ -19,6 +19,7 @@ target_include_directories(modbus-rp2040
 target_sources(modbus-rp2040
     INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/src/modbus.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/modbus_data.cpp
 )
 
 target_link_libraries(modbus-rp2040

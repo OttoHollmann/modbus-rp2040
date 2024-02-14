@@ -7,6 +7,7 @@
 #include <hardware/irq.h>
 #include <hardware/uart.h>
 #include <pico/stdlib.h>
+#include <modbus_data.hpp>
 
 // Constatnts
 #define MB_RX_BUF_SIZE                  64
@@ -80,4 +81,9 @@ private:
     int mb_response_buf_pos = 0;
 
     uint32_t mb_timeout;
+
+    ModbusCoil *coils;
+    ModbusCoil *discrete_input;
+    ModbusRegister *input_register;
+    ModbusRegister *holding_register;
 };
