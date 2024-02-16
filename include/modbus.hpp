@@ -22,27 +22,22 @@ extern void on_mb_rx();
 class ModbusManager
 {
 public:
+    ModbusManager();
+    ~ModbusManager();
     typedef enum { MB_DATA_READY, MB_DATA_INCOMPLETE, MB_INVALID_SLAVE_ADDRESS, MB_INVALID_FUNCTION } mb_state_t;
+    typedef enum { COIL, DISCRETE_INPUT, INPUT_REGISTER, HOLDING_REGISTER } mb_registers_t;
+
     void mb_init(uint8_t slave_address, uint8_t uart_num,
                 uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity,
                 uint8_t rx_pin, uint8_t tx_pin, uint8_t de_pin);
 
+    bool configure(mb_registers_t type, uint16_t start, uint16_t len);
+    bool write(mb_registers_t type, uint16_t address, uint16_t value);
+    bool read(mb_registers_t type, uint16_t address, uint16_t *value);
     void mb_rx(uint8_t data);
     void mb_process();
 
     uint8_t uart_number;
-
-    //dummy data stored here
-    uint16_t state              = 0;
-    uint16_t error_code         = 10;
-    uint16_t busy_code          = 20;
-
-    uint16_t command            = 100;
-    uint16_t command_param[3]   = {0};
-
-    uint16_t sensor_0           = 1000;
-    uint16_t sensor_1           = 1001;
-    uint16_t sensor_2           = 1002;
 
 private:
     void mb_response_add(uint16_t value);

@@ -22,11 +22,6 @@ This repository contain **working** example Modbus RTU Slave implementation for 
 - Change Switch-case optins according to your data and registers in *mb_read_holding_register()* and *mb_write_single_register()*
 
 ## TODO:
-- incapsulation for class data
-- register layout definition throw init
-- register checking throw std::dict instead of switch-case
 - move on_mb_rx() to class logic
-- mb_write_multiple_registers()
-- mb_read_input_registers()
 - 
 
