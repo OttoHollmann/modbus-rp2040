@@ -26,11 +26,11 @@ bool ModbusData::add_range(uint addr, uint size) {
 	return next->add_range(addr, size);
 }
 
-ModbusData * ModbusCoil::insert_range(uint addr, uint size){
+ModbusData* ModbusCoil::insert_range(uint addr, uint size){
 	return new ModbusCoil(addr, size);
 }
 
-ModbusData * ModbusRegister::insert_range(uint addr, uint size){
+ModbusData* ModbusRegister::insert_range(uint addr, uint size){
 	return new ModbusRegister(addr, size);
 }
 
