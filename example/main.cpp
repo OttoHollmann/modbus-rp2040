@@ -23,17 +23,6 @@
 ModbusSlave modbus;
 //////////////////////////////////////////////////////////////////
 
-
-// a crutch, because irq_handler cannot be a function - a class method
-// it was not possible to implement it inside the .hpp file, because it is necessary to call a function - a class method
-// works and is fine -_-
-void on_mb_rx() {
-	if (modbus.uart_number == 0)
-		modbus.mb_rx(uart_getc(uart0));
-	else
-		modbus.mb_rx(uart_getc(uart1));
-}
-
 void modbus_process_on_core_1() {
 	while(true) {
 		modbus.mb_process();

@@ -31,9 +31,6 @@
 #define MB_WRITE_MULTIPLE_COILS         0x0F
 #define MB_WRITE_MULTIPLE_REGISTERS     0x10
 
-// defined in main
-// CRUTCH
-extern void on_mb_rx();
 
 class ModbusSlave {
 public:
@@ -96,4 +93,18 @@ private:
 	ModbusCoil *discrete_input;
 	ModbusRegister *input_register;
 	ModbusRegister *holding_register;
+};
+
+class IRQ {
+public:
+	IRQ();
+	bool install_handler(ModbusSlave *mb, uint8_t id);
+	static void uart0_irq_handler();
+	static void uart1_irq_handler();
+	static IRQ *self;
+private:
+	void static_uart0_irq_handler();
+	void static_uart1_irq_handler();
+	ModbusSlave *mb0;
+	ModbusSlave *mb1;
 };

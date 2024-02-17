@@ -1,5 +1,50 @@
 #include "modbus.hpp"
 
+IRQ* IRQ::self = nullptr;
+static IRQ irq;
+
+/*
+ * Call a member function like a static
+ * inspired by https://forums.raspberrypi.com/viewtopic.php?t=336608
+ */
+IRQ::IRQ() {
+	assert(selfptr == nullptr);
+	self = nullptr;
+}
+
+void IRQ::uart0_irq_handler() {
+	self->static_uart0_irq_handler();
+}
+
+void IRQ::uart1_irq_handler() {
+	self->static_uart1_irq_handler();
+}
+
+void IRQ::static_uart0_irq_handler() {
+	if (mb0) return mb0->mb_rx(uart_getc(uart0));
+}
+
+void IRQ::static_uart1_irq_handler() {
+	if (mb1) return mb1->mb_rx(uart_getc(uart1));
+}
+
+bool IRQ::install_handler(ModbusSlave *mb, uint8_t id) {
+	switch (id) {
+	case 0:
+		mb0 = mb;
+		irq_set_exclusive_handler(UART0_IRQ, uart0_irq_handler);
+		break;
+	case 1:
+		mb1 = mb;
+		irq_set_exclusive_handler(UART0_IRQ, uart1_irq_handler);
+		break;
+	default:
+		return false;
+	}
+	return mb;
+}
+
+
 ModbusSlave::ModbusSlave():coils(NULL), discrete_input(NULL),
                            input_register(NULL), holding_register(NULL){};
 
@@ -234,8 +279,6 @@ void ModbusSlave::mb_init(uint8_t slave_address, uint8_t uart_num,
 
 		uart_set_fifo_enabled(uart0, false);
 
-		irq_set_exclusive_handler(UART0_IRQ, on_mb_rx);
-
 		irq_set_enabled(UART0_IRQ, true);
 		uart_set_irq_enables(uart0, true, false);
 	} else if(uart_num == 1) {
@@ -245,11 +288,11 @@ void ModbusSlave::mb_init(uint8_t slave_address, uint8_t uart_num,
 
 		uart_set_fifo_enabled(uart1, false);
 
-		irq_set_exclusive_handler(UART1_IRQ, on_mb_rx);
-
 		irq_set_enabled(UART1_IRQ, true);
 		uart_set_irq_enables(uart1, true, false);
 	}
+
+	irq.install_handler(this, uart_num);
 
 	mb_reset_buf();
 	coils = NULL;
