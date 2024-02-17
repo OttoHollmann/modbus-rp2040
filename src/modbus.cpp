@@ -1,8 +1,9 @@
 #include "modbus.hpp"
 
-ModbusManager::ModbusManager():coils(NULL), discrete_input(NULL),
-                               input_register(NULL), holding_register(NULL){};
-ModbusManager::~ModbusManager() {
+ModbusSlave::ModbusSlave():coils(NULL), discrete_input(NULL),
+                           input_register(NULL), holding_register(NULL){};
+
+ModbusSlave::~ModbusSlave() {
 	if (coils)
 		delete coils;
 	if (discrete_input)
@@ -11,9 +12,9 @@ ModbusManager::~ModbusManager() {
 		delete input_register;
 	if (holding_register)
 		delete holding_register;
-};
+}
 
-bool ModbusManager::configure(mb_type_t type, uint16_t start, uint16_t len) {
+bool ModbusSlave::configure(mb_type_t type, uint16_t start, uint16_t len) {
 	switch (type) {
 	case COIL:
 		if (!coils)
@@ -35,7 +36,7 @@ bool ModbusManager::configure(mb_type_t type, uint16_t start, uint16_t len) {
 	return false;
 }
 
-bool ModbusManager::write(mb_type_t type, uint16_t address, uint16_t value) {
+bool ModbusSlave::write(mb_type_t type, uint16_t address, uint16_t value) {
 	switch (type) {
 	case COIL:
 		return coils && coils->writeValue(address, value);
@@ -49,7 +50,7 @@ bool ModbusManager::write(mb_type_t type, uint16_t address, uint16_t value) {
 	return false;
 }
 
-bool ModbusManager::read(mb_type_t type, uint16_t address, bool *value) const {
+bool ModbusSlave::read(mb_type_t type, uint16_t address, bool *value) const {
 	switch (type) {
 	case COIL:
 		return coils && coils->getValue(address, value);
@@ -59,7 +60,7 @@ bool ModbusManager::read(mb_type_t type, uint16_t address, bool *value) const {
 	return false;
 }
 
-bool ModbusManager::read(mb_type_t type, uint16_t address, uint16_t *value) const {
+bool ModbusSlave::read(mb_type_t type, uint16_t address, uint16_t *value) const {
 	switch (type) {
 	case INPUT_REGISTER:
 		return input_register && input_register->getValue(address, value);
@@ -69,7 +70,7 @@ bool ModbusManager::read(mb_type_t type, uint16_t address, uint16_t *value) cons
 	return false;
 }
 
-uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len) const {
+uint16_t ModbusSlave::mb_calc_crc16(const uint8_t* buf, uint8_t len) const {
 	uint16_t crc = 0xFFFF;
 	uint8_t i, j = 0;
 	while (j < len) {
@@ -87,7 +88,7 @@ uint16_t ModbusManager::mb_calc_crc16(const uint8_t* buf, uint8_t len) const {
 	return crc;
 }
 
-ModbusManager::mb_state_t ModbusManager::mb_check_buf() {
+ModbusSlave::mb_state_t ModbusSlave::mb_check_buf() {
 	if (mb_request_buf_pos > 4) {
 		if (mb_request_buf[0] != mb_slave_address || mb_slave_address == 0) {
 			return MB_INVALID_SLAVE_ADDRESS;
@@ -109,12 +110,12 @@ ModbusManager::mb_state_t ModbusManager::mb_check_buf() {
 	return MB_DATA_INCOMPLETE;
 }
 
-void ModbusManager::mb_reset_buf() {
+void ModbusSlave::mb_reset_buf() {
 	mb_request_buf_pos = 0;
 	memset(mb_request_buf, 0, sizeof(mb_request_buf));
 }
 
-void ModbusManager::mb_response_tx() {
+void ModbusSlave::mb_response_tx() {
 	// Calculate CRC
 	uint16_t crc = mb_calc_crc16(mb_response_buf, mb_response_buf_pos);
 	mb_response_buf[mb_response_buf_pos++] = crc & 0xFF;
@@ -124,7 +125,7 @@ void ModbusManager::mb_response_tx() {
 	mb_tx(mb_response_buf, mb_response_buf_pos);
 }
 
-void ModbusManager::mb_error(uint8_t err) {
+void ModbusSlave::mb_error(uint8_t err) {
 	mb_response_buf_pos = 0;
 	mb_response_buf[mb_response_buf_pos++] = mb_slave_address;
 	mb_response_buf[mb_response_buf_pos++] = mb_request_buf[1] | 0x80;
@@ -133,31 +134,28 @@ void ModbusManager::mb_error(uint8_t err) {
 }
 
 //here I swapped the entries in the registers
-void ModbusManager::mb_response_add(uint16_t value) {
+void ModbusSlave::mb_response_add(uint16_t value) {
 	mb_response_buf[2] += 2;
 	mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
 	mb_response_buf[mb_response_buf_pos++] = value & 0xFF;
-
 }
 
 // for write single register
-void ModbusManager::mb_response_add_without_length(uint16_t value) {
+void ModbusSlave::mb_response_add_without_length(uint16_t value) {
 	if (mb_response_buf_pos == 3)
 		mb_response_buf_pos--; // no need to send message length
 	mb_response_buf[mb_response_buf_pos++] = (value & 0xFF00) >> 8;
 	mb_response_buf[mb_response_buf_pos++] = value & 0xFF;
-
 }
 
-void ModbusManager::mb_response_reset(uint8_t fn) {
+void ModbusSlave::mb_response_reset(uint8_t fn) {
 	mb_response_buf_pos = 0;
 	mb_response_buf[mb_response_buf_pos++] = mb_slave_address;
 	mb_response_buf[mb_response_buf_pos++] = fn;
 	mb_response_buf[mb_response_buf_pos++] = 0;
 }
 
-
-void ModbusManager::mb_rx_rtu() {
+void ModbusSlave::mb_rx_rtu() {
 	uint8_t res;
 
 	// Check CRC
@@ -214,7 +212,7 @@ void ModbusManager::mb_rx_rtu() {
 	mb_reset_buf();
 }
 
-void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num,
+void ModbusSlave::mb_init(uint8_t slave_address, uint8_t uart_num,
 	uint32_t baudrate, uint8_t data_bits, uint8_t stop_bits, uart_parity_t parity,
 	uint8_t rx_pin, uint8_t tx_pin, uint8_t de_pin) {
 	mb_slave_address = slave_address;
@@ -260,7 +258,7 @@ void ModbusManager::mb_init(uint8_t slave_address, uint8_t uart_num,
 	holding_register = NULL;
 }
 
-void ModbusManager::mb_rx(uint8_t data) {
+void ModbusSlave::mb_rx(uint8_t data) {
 	if (mb_get_tick_ms() - mb_timeout > MB_TIMEOUT)
 		mb_reset_buf();
 
@@ -270,7 +268,7 @@ void ModbusManager::mb_rx(uint8_t data) {
 		mb_request_buf[mb_request_buf_pos++] = data;
 }
 
-void ModbusManager::mb_process() {
+void ModbusSlave::mb_process() {
 	mb_state_t mb_state = mb_check_buf();
 	switch (mb_state) {
 	case MB_INVALID_FUNCTION:
@@ -289,7 +287,7 @@ void ModbusManager::mb_process() {
 	}
 }
 
-uint8_t ModbusManager::mb_read_coil_status(uint16_t start, uint16_t count) {
+uint8_t ModbusSlave::mb_read_coil_status(uint16_t start, uint16_t count) {
 	bool value;
 	if (coils) {
 		for (int i = 0; i < count; ++i) {
@@ -302,7 +300,7 @@ uint8_t ModbusManager::mb_read_coil_status(uint16_t start, uint16_t count) {
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_read_input_status(uint16_t start, uint16_t count) {
+uint8_t ModbusSlave::mb_read_input_status(uint16_t start, uint16_t count) {
 	bool value;
 	if (discrete_input) {
 		for (int i = 0; i < count; ++i) {
@@ -315,7 +313,7 @@ uint8_t ModbusManager::mb_read_input_status(uint16_t start, uint16_t count) {
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_read_holding_registers(uint16_t start, uint16_t count) {
+uint8_t ModbusSlave::mb_read_holding_registers(uint16_t start, uint16_t count) {
 	uint16_t value;
 	if (holding_register) {
 		for (int i = 0; i < count; ++i) {
@@ -328,7 +326,7 @@ uint8_t ModbusManager::mb_read_holding_registers(uint16_t start, uint16_t count)
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_read_input_registers(uint16_t start, uint16_t count) {
+uint8_t ModbusSlave::mb_read_input_registers(uint16_t start, uint16_t count) {
 	uint16_t value;
 	if (input_register) {
 		for (int i = 0; i < count; ++i) {
@@ -341,7 +339,7 @@ uint8_t ModbusManager::mb_read_input_registers(uint16_t start, uint16_t count) {
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_write_single_coil(uint16_t start, uint16_t value) {
+uint8_t ModbusSlave::mb_write_single_coil(uint16_t start, uint16_t value) {
 	if (coils && coils->writeValue(start, value)) {
 		mb_response_add_without_length(start);
 		mb_response_add_without_length(value);
@@ -350,7 +348,7 @@ uint8_t ModbusManager::mb_write_single_coil(uint16_t start, uint16_t value) {
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value) {
+uint8_t ModbusSlave::mb_write_single_register(uint16_t start, uint16_t value) {
 	if (holding_register && holding_register->writeValue(start, value)) {
 		mb_response_add_without_length(start);
 		mb_response_add_without_length(value);
@@ -359,7 +357,7 @@ uint8_t ModbusManager::mb_write_single_register(uint16_t start, uint16_t value) 
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_write_multiple_coils(uint16_t start, uint8_t* values, uint16_t count) {
+uint8_t ModbusSlave::mb_write_multiple_coils(uint16_t start, uint8_t* values, uint16_t count) {
 	if (coils) {
 		uint16_t coils_written = 0;
 		for (int i = 0; i < count; ++i) {
@@ -373,7 +371,7 @@ uint8_t ModbusManager::mb_write_multiple_coils(uint16_t start, uint8_t* values, 
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t *values, uint16_t count) {
+uint8_t ModbusSlave::mb_write_multiple_registers(uint16_t start, uint16_t *values, uint16_t count) {
 	if (holding_register) {
 		uint16_t registers_written = 0;
 		for (int i = 0; i < count; ++i) {
@@ -387,11 +385,11 @@ uint8_t ModbusManager::mb_write_multiple_registers(uint16_t start, uint16_t *val
 	return MB_ERROR_ILLEGAL_DATA_ADDRESS;
 }
 
-uint32_t ModbusManager::mb_get_tick_ms(void) {
+uint32_t ModbusSlave::mb_get_tick_ms(void) {
 	return time_us_64() / 1000;
 }
 
-void ModbusManager::mb_tx(uint8_t* data, uint32_t size) {
+void ModbusSlave::mb_tx(uint8_t* data, uint32_t size) {
 	gpio_put(de_pin, 1);
 
 	if (uart_number == 0)

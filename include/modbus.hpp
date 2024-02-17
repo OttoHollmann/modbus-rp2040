@@ -35,10 +35,10 @@
 // CRUTCH
 extern void on_mb_rx();
 
-class ModbusManager {
+class ModbusSlave {
 public:
-	ModbusManager();
-	~ModbusManager();
+	ModbusSlave();
+	~ModbusSlave();
 	typedef enum { MB_DATA_READY, MB_DATA_INCOMPLETE, MB_INVALID_SLAVE_ADDRESS, MB_INVALID_FUNCTION } mb_state_t;
 	typedef enum { COIL, DISCRETE_INPUT, INPUT_REGISTER, HOLDING_REGISTER } mb_type_t;
 

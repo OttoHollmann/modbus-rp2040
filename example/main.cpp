@@ -20,7 +20,7 @@
 
 #define MB_DE_PIN        7
 
-ModbusManager modbus;
+ModbusSlave modbus;
 //////////////////////////////////////////////////////////////////
 
 
@@ -40,9 +40,9 @@ void modbus_process_on_core_1() {
 
 		uint16_t time_sec = (uint16_t) (time_us_64()/(1000*1000));
 
-		modbus.write(ModbusManager::HOLDING_REGISTER, time_sec*10, 110);
-		modbus.write(ModbusManager::HOLDING_REGISTER, time_sec*20, 111);
-		modbus.write(ModbusManager::HOLDING_REGISTER, time_sec*30, 112);
+		modbus.write(ModbusSlave::HOLDING_REGISTER, time_sec*10, 110);
+		modbus.write(ModbusSlave::HOLDING_REGISTER, time_sec*20, 111);
+		modbus.write(ModbusSlave::HOLDING_REGISTER, time_sec*30, 112);
 	}
 }
 
@@ -60,12 +60,12 @@ int main(void) {
 					MB_RX_PIN,
 					MB_TX_PIN,
 					MB_DE_PIN);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 0, 1);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 10, 1);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 20, 1);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 100, 1);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 110, 3);
-	modbus.configure(ModbusManager::HOLDING_REGISTER, 1000, 3);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 0, 1);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 10, 1);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 20, 1);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 100, 1);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 110, 3);
+	modbus.configure(ModbusSlave::HOLDING_REGISTER, 1000, 3);
 
 	multicore_launch_core1(modbus_process_on_core_1);
 
