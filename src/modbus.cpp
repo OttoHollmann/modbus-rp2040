@@ -9,7 +9,7 @@ static IRQ irq;
  */
 IRQ::IRQ() {
 	assert(selfptr == nullptr);
-	self = nullptr;
+	self = this;
 }
 
 void IRQ::uart0_irq_handler() {
@@ -21,11 +21,11 @@ void IRQ::uart1_irq_handler() {
 }
 
 void IRQ::static_uart0_irq_handler() {
-	if (mb0) return mb0->mb_rx(uart_getc(uart0));
+	if (mb0) mb0->mb_rx(uart_getc(uart0));
 }
 
 void IRQ::static_uart1_irq_handler() {
-	if (mb1) return mb1->mb_rx(uart_getc(uart1));
+	if (mb1) mb1->mb_rx(uart_getc(uart1));
 }
 
 bool IRQ::install_handler(ModbusSlave *mb, uint8_t id) {
@@ -36,7 +36,7 @@ bool IRQ::install_handler(ModbusSlave *mb, uint8_t id) {
 		break;
 	case 1:
 		mb1 = mb;
-		irq_set_exclusive_handler(UART0_IRQ, uart1_irq_handler);
+		irq_set_exclusive_handler(UART1_IRQ, uart1_irq_handler);
 		break;
 	default:
 		return false;
